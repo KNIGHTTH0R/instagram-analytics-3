@@ -14,14 +14,14 @@ class CreateUsersTable extends Migration
     public function up()
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->bigInteger('id')->unique();
-            $table->primary('id');
-            $table->bigInteger('instagram_id')->unique();
+            $table->increments('id');
+            $table->string('instagram_id')->unique();
             $table->string('username');
             $table->string('token');
             $table->integer('media');
             $table->integer('follows');
             $table->integer('followed_by');
+            $table->timestamps();
             $table->softDeletes();
         });
     }

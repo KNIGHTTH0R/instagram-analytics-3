@@ -2,28 +2,33 @@
 
 namespace App;
 
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
+use App\Post;
+use App\LastPost;
 
-class User extends Authenticatable
+class User extends Model
 {
-    use Notifiable;
+    public function storePost($post)
+    {
+        $model = new Post();
+        $model->instagram_id = $post->id;
+        $model->user_id = $this->id; /////////////
+        $model->type = $post->type;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-//    protected $fillable = [
-//        'name', 'email', 'password',
-//    ];
+        if ($post->type == 'video') {
+            $model->url = $post->videos->standard_resolution->url;
+        } else {
+            $model->url = $post->images->standard_resolution->url;
+        }
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-//    protected $hidden = [
-//        'password', 'remember_token',
-//    ];
+        $model->comments = $post->comments->count;
+        $model->likes = $post->likes->count;
+        $model->instagram_created_time =  $post->created_time;
+        $model->save();
+    }
+
+    public function getLastPost()
+    {
+        return LastPost::where('user_id', $this->id)->first();
+    }
 }
