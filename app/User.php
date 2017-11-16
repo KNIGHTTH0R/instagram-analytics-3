@@ -12,7 +12,7 @@ class User extends Model
     {
         $model = new Post();
         $model->instagram_id = $post->id;
-        $model->user_id = $this->id; /////////////
+        $model->user_id = $this->id;
         $model->type = $post->type;
 
         if ($post->type == 'video') {

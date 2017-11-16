@@ -58,11 +58,10 @@ class Instagram
         $last_post_id = isset($last_post->last_post_id) ? $last_post->last_post_id : null;
         $url = self::API_URL . 'users/' . $instagram_uid . '/media/recent/';
         $options = ['access_token' => $access_token, 'count' => 10];
-        $flag = true;
+        $enabled_next_page = true;
         $array_post_id = [];
-        $posts = [];
 
-        while ($flag) {
+        while ($enabled_next_page) {
             $response = self::makeCall($url, $options);
             $posts = $response->data;
             $length = count($posts);
@@ -73,20 +72,22 @@ class Instagram
                     $user->storePost($post);
                     $array_post_id[] = $post->id;
                 } else {
-                    $flag = false;
+                    $exist_new_posts = false;
                     break;
                 }
             }
 
-            if ($flag && isset($response->pagination) && isset($response->pagination->next_max_id)) {
-                $options['max_id'] = $response->pagination->next_max_id;
-            } else {
-                $flag = false;
+            if ($enabled_next_page) {
+                if (isset($response->pagination) && isset($response->pagination->next_max_id)) {
+                    $options['max_id'] = $response->pagination->next_max_id;
+                } else {
+                    $enabled_next_page = false;
+                }
             }
         }
 
         if ($array_post_id)
-            self::updateLastPostId($user->id, $posts[0]->id);
+            self::updateLastPostId($user->id, $array_post_id[0]);
 
         return $array_post_id;
     }
